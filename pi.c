@@ -9,12 +9,14 @@ int main(int argc, char** argv)
     long i;
     double dx = 1.0 / NSTEPS;
     double pi = 0.0;
+    double x;
 
     double start_time = omp_get_wtime();
 
+    #pragma omp parallel for private(x) reduction(+ : pi)
     for (i = 0; i < NSTEPS; i++)
     {
-        double x = (i + 0.5) * dx;
+        x = (i + 0.5) * dx;
         pi += 1.0 / (1.0 + x * x);
     }
 
