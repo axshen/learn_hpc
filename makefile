@@ -7,3 +7,6 @@ hello: hello.c
 
 pi: pi.c
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
+
+vector_add: vector_add.c
+	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
