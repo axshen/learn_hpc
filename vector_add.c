@@ -15,17 +15,42 @@ void v_add_naive(double* x, double* y, double* z) {
 }
 
 // Edit this function (Method 1) 
+// This is the slicing method where each thread works on adjacent sums
 void v_add_optimized_adjacent(double* x, double* y, double* z) {
-     #pragma omp parallel
+	#pragma omp parallel
 	{
-		for(int i=0; i<ARRAY_SIZE; i++)
+		int n_threads = omp_get_num_threads();
+		int thread_id = omp_get_thread_num();
+		for(int i=thread_id; i<ARRAY_SIZE; i+=n_threads)
 			z[i] = x[i] + y[i];
 	}
 }
 
 // Edit this function (Method 2) 
+// Use the chunking method (breaking total data into N different chunks)
 void v_add_optimized_chunks(double* x, double* y, double* z) {
-          #pragma omp parallel
+	#pragma omp parallel
+	{
+		int n_threads = omp_get_num_threads();
+		int thread_id = omp_get_thread_num();
+		int CHUNK_SIZE = ARRAY_SIZE / n_threads;
+
+		int start = thread_id * CHUNK_SIZE;
+		int end = (thread_id + 1) * CHUNK_SIZE;
+
+		if (thread_id == n_threads - 1) {
+			end = ARRAY_SIZE;
+		}
+
+		for(int i=start; i<end; i++)
+			z[i] = x[i] + y[i];
+	}
+}
+
+// I want to compare performance with the OpenMP pragma omp for directive (which
+// should be better optimised than my work).
+void v_add_omp(double* x, double* y, double* z) {
+	#pragma omp parallel for
 	{
 		for(int i=0; i<ARRAY_SIZE; i++)
 			z[i] = x[i] + y[i];
@@ -63,33 +88,46 @@ int main() {
 	double start_time, run_time;
 	int num_threads = omp_get_max_threads();	
 
-
 	for(int i=1; i<=num_threads; i++) {
 		omp_set_num_threads(i);		
-	  start_time = omp_get_wtime();
+		start_time = omp_get_wtime();
 		for(int j=0; j<REPEAT; j++)
 			v_add_optimized_adjacent(x,y,z);
 		run_time = omp_get_wtime() - start_time;
-    if(!verify(x,y, v_add_optimized_adjacent)){
-      printf("v_add optimized adjacent does not match oracle\n");
-      return -1; 
-    }
-    printf("Optimized adjacent: %d thread(s) took %f seconds\n",i,run_time);
-  }
-
+		if(!verify(x,y, v_add_optimized_adjacent)) {
+			printf("v_add optimized adjacent does not match oracle\n");
+			return -1; 
+		}
+		printf("Optimized adjacent: %d thread(s) took %f seconds\n",i,run_time);
+	}
 
 	for(int i=1; i<=num_threads; i++) {
 		omp_set_num_threads(i);		
-	  start_time = omp_get_wtime();
+		start_time = omp_get_wtime();
 		for(int j=0; j<REPEAT; j++)
 			v_add_optimized_chunks(x,y,z);
 		run_time = omp_get_wtime() - start_time;
-    if(!verify(x,y, v_add_optimized_chunks)){
-      printf("v_add optimized chunks does not match oracle\n");
-      return -1; 
-    }
-    printf("Optimized chunks: %d thread(s) took %f seconds\n",i,run_time);
-  }
+		
+		if(!verify(x,y, v_add_optimized_chunks)){
+			printf("v_add optimized chunks does not match oracle\n");
+			return -1; 
+		}
+		printf("Optimized chunks: %d thread(s) took %f seconds\n",i,run_time);
+	}
+
+	for(int i=1; i<=num_threads; i++) {
+		omp_set_num_threads(i);		
+		start_time = omp_get_wtime();
+		for(int j=0; j<REPEAT; j++)
+			v_add_omp(x,y,z);
+		run_time = omp_get_wtime() - start_time;
+		
+		if(!verify(x,y, v_add_omp)){
+			printf("v_add optimized chunks does not match oracle\n");
+			return -1; 
+		}
+		printf("OpenMP optimized: %d thread(s) took %f seconds\n",i,run_time);
+	}
 
 	for(int i=1; i<=num_threads; i++) {
 		omp_set_num_threads(i);		
@@ -97,9 +135,10 @@ int main() {
 		for(int j=0; j<REPEAT; j++)
 			v_add_naive(x,y,z);
 		run_time = omp_get_wtime() - start_time;
-  	printf("Naive: %d thread(s) took %f seconds\n",i,run_time);
-  }
-  return 0;
+		printf("Naive: %d thread(s) took %f seconds\n",i,run_time);
+	}
+
+	return 0;
 }
  
 
