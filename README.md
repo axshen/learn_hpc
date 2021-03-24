@@ -6,7 +6,7 @@ Write multi-threaded C++ code using OpenMP and print hello world on each thread.
 
 ## 2. Estimate Pi
 
-Calculate pi using serial and multi-threaded C code. Compare performace
+Calculate pi using serial and multi-threaded C code.
 
 ## 3. Vector addition
 
