@@ -4,3 +4,5 @@ pi_parallel
 pi_serial
 vector_add
 vector_add_optimised
+run
+.vscode

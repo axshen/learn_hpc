@@ -10,3 +10,4 @@ pi: pi.c
 
 vector_add: vector_add.c
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
+
