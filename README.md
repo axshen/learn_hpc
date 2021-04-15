@@ -15,13 +15,9 @@ Write multi-threaded C++ code using OpenMP and print hello world on each thread.
 
 ### 2. Estimate Pi
 
-Calculate pi using serial and multi-threaded C++ code. 
+Calculate pi using serial and multi-threaded C code.
 
 ### 3. Vector addition
 
 See [CS61C lab](https://cs61c.org/su20/labs/lab10/#part1-multi-threading-programming-using-openmp) exercise 2.
-
-### 4. Multiprocessing
-
-See [CS61C lab](https://cs61c.org/su20/labs/lab10/#part1-multi-threading-programming-using-openmp) part 2.
 
